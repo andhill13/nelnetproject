@@ -1,0 +1,36 @@
+import pandas as pd
+from statsmodels.tsa.seasonal import seasonal_decompose 
+import matplotlib.pyplot as plt
+from matplotlib.dates import DateFormatter
+
+df = pd.read_csv(r"C:\Users\andhi\Downloads\approved_data_2016_2018.csv", 
+                 low_memory= False)
+df = df[['issue_d', 'open_acc']]
+df['issue_d'] = pd.to_datetime(df['issue_d'],format= '%b-%Y')
+
+df2 = df.groupby('issue_d')['open_acc'].sum()
+
+decomp = seasonal_decompose(df2, model='multiplicative')
+szn = decomp.seasonal
+plt.figure().set_figwidth(10)
+ax = plt.subplot()
+ax.plot(szn)
+
+highs = pd.to_datetime(['2016-05-01', '2016-08-01', '2017-05-01', 
+         '2017-08-01', '2018-05-01', '2018-08-01'], format = '%Y-%m-%d')
+lows = pd.to_datetime(['2016-02-01', '2017-02-01', '2018-02-01'], 
+                      format = '%Y-%m-%d')
+
+for xc in highs:
+    plt.axvline(x = xc, color = 'green', linestyle = '--')
+    
+for xd in lows:
+    plt.axvline(x = xd, color = 'red', linestyle = '--') 
+
+plt.ylabel('seasonality')
+plt.xlabel('date')
+plt.title('seasonality of open accounts over time') 
+
+date_format = DateFormatter("%Y-%b")
+
+plt.show()
